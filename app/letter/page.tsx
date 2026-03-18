@@ -6,7 +6,7 @@ import { useWipe } from "@/lib/hooks/useWipe";
 import { ROUTES, STORAGE_KEYS } from "@/lib/constants";
 import { AnalysisResult, LetterData } from "@/lib/types";
 
-const generateLetterText = (data: AnalysisResult): string => {
+const generateLetterText = (data: AnalysisResult, name: string): string => {
   const today = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -48,7 +48,7 @@ DEMAND
 I formally request: (1) an immediate reversal of this denial, (2) authorization of the requested treatment, and (3) a written response within 30 days as required by federal regulation. Failure to respond within this period will result in escalation to the State Insurance Commissioner and a request for External Review under applicable law.
 
 Sincerely,
-[Patient Name]
+${name}
 [Contact Information]
 [Date of Birth]
 [Member ID: ${data.denial.policyId}]`;
@@ -80,6 +80,7 @@ const highlightText = (text: string, data: AnalysisResult) => {
 
 export default function LetterPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [patientName, setPatientName] = useState("Patient");
   const [letterText, setLetterText] = useState("");
   const [copied, setCopied] = useState(false);
   const [personalizing, setPersonalizing] = useState(true);
@@ -98,6 +99,7 @@ export default function LetterPage() {
 
   useEffect(() => {
     const dataStr = sessionStorage.getItem(STORAGE_KEYS.ANALYSIS_RESULT);
+    const storedName = sessionStorage.getItem("void_patient_name");
     if (!dataStr) {
       navigate(ROUTES.HOME);
       return;
@@ -105,7 +107,8 @@ export default function LetterPage() {
     try {
       const data = JSON.parse(dataStr) as AnalysisResult;
       setAnalysis(data);
-      const outputText = generateLetterText(data);
+      if (storedName) setPatientName(storedName);
+      const outputText = generateLetterText(data, storedName || "Patient");
       setLetterText(outputText);
       initialHtml.current = highlightText(outputText, data);
     } catch (err) {
@@ -126,7 +129,10 @@ export default function LetterPage() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(analysis),
+          body: JSON.stringify({
+            ...analysis,
+            patientName,
+          }),
         });
         if (res.ok) {
           const data: LetterData = await res.json();

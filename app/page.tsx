@@ -8,6 +8,7 @@ import { AnalysisResult } from "@/lib/types"
 
 export default function UploadPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [patientName, setPatientName] = useState("")
   const [loading, setLoading] = useState(false)
   const [loadingTest, setLoadingTest] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -63,6 +64,10 @@ export default function UploadPage() {
       }
       const data: AnalysisResult = await res.json()
       sessionStorage.setItem(STORAGE_KEYS.ANALYSIS_RESULT, JSON.stringify(data))
+      sessionStorage.setItem(
+        "void_patient_name", 
+        patientName.trim() || "Patient"
+      )
       wipe(ROUTES.PROCESSING)
     } catch (err) {
       setError(
@@ -312,6 +317,35 @@ export default function UploadPage() {
                 {ext}
               </span>
             ))}
+          </div>
+
+          <div style={{ width: "100%", marginBottom: "16px" }}>
+            <input
+              type="text"
+              placeholder="Your full name (for the letter)"
+              value={patientName}
+              onChange={(e) => setPatientName(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                background: "transparent",
+                border: "1px solid rgba(184,154,106,0.38)",
+                borderRadius: "8px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "11px",
+                letterSpacing: "0.06em",
+                color: "#0C0C0E",
+                outline: "none",
+                transition: "border-color 0.2s ease",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "#B89A6A"
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 
+                  "rgba(184,154,106,0.38)"
+              }}
+            />
           </div>
 
           {/* Begin Analysis */}

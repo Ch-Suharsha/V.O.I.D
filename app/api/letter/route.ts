@@ -9,7 +9,8 @@ if (!GEMINI_API_KEY) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body: AnalysisResult = await req.json();
+    const body: AnalysisResult & { patientName?: string } = await req.json();
+    const patientName = body.patientName || "Patient";
 
     if (!body || !body.denial) {
       return NextResponse.json(
@@ -51,6 +52,7 @@ ${
     ? `- Mismatch Detail: ${body.npi.mismatchReason || "The reviewer's specialty could not be verified against the requested procedure."}`
     : ""
 }
+- PATIENT NAME: ${patientName}
 
 LEGAL GROUNDS FOR APPEAL:
 ${findingsSummary}
@@ -68,7 +70,7 @@ LETTER REQUIREMENTS:
    (4) warning that non-response will trigger State Insurance Commissioner complaint
 7. End with formal sign-off leaving space for patient name and contact info
 
-FORMAT: Plain text only. No markdown. No bullet points in the letter itself. Professional paragraph format throughout. The letter should be 400-600 words. Do NOT include placeholder lines like [Insurance Company Name] or [Insurance Company Address] at the top. Start the letter directly with the date, then the RE: line, then the salutation.
+FORMAT: Plain text only. No markdown. No bullet points in the letter itself. Professional paragraph format throughout. The letter should be 400-600 words. Do NOT include placeholder lines like [Insurance Company Name] or [Insurance Company Address] at the top. Use the patient name provided above instead of [Patient Name] placeholder. Start the letter directly with the date, then the RE: line, then the salutation.
 
 Return ONLY the letter text. No preamble, no explanation, no "here is your letter" — just the letter itself starting with the date.
 `;
