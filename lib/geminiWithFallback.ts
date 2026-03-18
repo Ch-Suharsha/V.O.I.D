@@ -1,9 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
 
+// Only models confirmed available on free tier
+// gemini-2.0-flash and gemini-2.0-flash-lite have 0/0 quota
+// on this account so they are excluded
 const MODEL_CHAIN = [
   "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
   "gemini-2.5-flash-lite",
 ]
 
