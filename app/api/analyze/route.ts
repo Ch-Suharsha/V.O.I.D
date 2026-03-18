@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AnalysisResult, DenialData, Finding, NPIResult } from "@/lib/types";
 import { API, FINDING_LABELS } from "@/lib/constants";
 import { lookupNPI } from "@/lib/npiLookup";
+import { generateWithFallback } from "@/lib/geminiWithFallback";
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,11 +30,6 @@ export async function POST(req: NextRequest) {
       | "image/png"
       | "image/tiff";
 
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-    });
-
     const extractionPrompt = `
 You are a medical insurance denial letter analyzer.
 Extract the following information from this document
@@ -56,12 +51,13 @@ If a field cannot be found, use the default value shown.
 Return only the JSON object.
 `;
 
-    const result = await model.generateContent([
-      extractionPrompt,
-      { inlineData: { mimeType, data: base64 } },
-    ]);
-
-    const responseText = result.response.text();
+    const responseText = await generateWithFallback(
+      GEMINI_API_KEY!,
+      [
+        extractionPrompt,
+        { inlineData: { mimeType, data: base64 } },
+      ]
+    );
 
     let denialData: DenialData;
     try {

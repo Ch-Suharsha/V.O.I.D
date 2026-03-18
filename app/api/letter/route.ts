@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AnalysisResult, LetterData } from "@/lib/types";
+import { generateWithFallback } from "@/lib/geminiWithFallback";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 if (!GEMINI_API_KEY) {
@@ -83,13 +83,10 @@ FORMAT: Plain text only. No markdown. No bullet points in the letter itself. Pro
 Return ONLY the letter text. No preamble, no explanation, no "here is your letter" — just the letter itself starting with the date.
 `;
 
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-    });
-
-    const result = await model.generateContent(letterPrompt);
-    const letterText = result.response.text();
+    const letterText = await generateWithFallback(
+      GEMINI_API_KEY!,
+      letterPrompt
+    );
 
     const letterData: LetterData = {
       claimNumber: body.denial.claimNumber,
