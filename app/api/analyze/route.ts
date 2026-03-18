@@ -4,38 +4,7 @@ import { AnalysisResult, DenialData, Finding, NPIResult } from "@/lib/types";
 import { API, FINDING_LABELS } from "@/lib/constants";
 import { lookupNPI } from "@/lib/npiLookup";
 
-let lastRequestTime = 0
-const RATE_LIMIT_MS = 65000
-
-function checkRateLimit(): {
-  allowed: boolean;
-  waitSeconds: number
-} {
-  const now = Date.now()
-  const timeSinceLast = now - lastRequestTime
-
-  if (timeSinceLast < RATE_LIMIT_MS) {
-    const waitSeconds = Math.ceil(
-      (RATE_LIMIT_MS - timeSinceLast) / 1000
-    )
-    return { allowed: false, waitSeconds }
-  }
-
-  lastRequestTime = now
-  return { allowed: true, waitSeconds: 0 }
-}
-
 export async function POST(req: NextRequest) {
-  const rateCheck = checkRateLimit()
-  if (!rateCheck.allowed) {
-    return NextResponse.json(
-      {
-        error: `Please wait ${rateCheck.waitSeconds} seconds before trying again.`
-      },
-      { status: 429 }
-    )
-  }
-
   try {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     if (!GEMINI_API_KEY) {
