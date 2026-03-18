@@ -6,7 +6,7 @@ import { useWipe } from "@/lib/hooks/useWipe";
 import { ROUTES, STORAGE_KEYS } from "@/lib/constants";
 import { AnalysisResult, LetterData } from "@/lib/types";
 
-const generateLetterText = (data: AnalysisResult, name: string): string => {
+const generateLetterText = (data: AnalysisResult, name: string, contactInfo: string, dateOfBirth: string): string => {
   const today = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -31,6 +31,14 @@ A review of the Evidence of Coverage reveals that the requested treatment is exp
   grounds.push(`${data.npi.specialtyMismatch ? '3' : '2'}. Right to Full and Fair Review
 Under ERISA Section 503 and the ACA § 2719, I am entitled to a full and fair review of this denial. The denial notice provided insufficient clinical reasoning to satisfy this statutory requirement.`);
 
+  const signOff = [
+    "Sincerely,",
+    name,
+    contactInfo || "",
+    dateOfBirth ? `Date of Birth: ${dateOfBirth}` : "",
+    `Member ID: ${data.denial.policyId}`
+  ].filter(Boolean).join("\n");
+
   return `${today}
 
 Re: Formal ERISA Grievance — Claim #${data.denial.claimNumber}
@@ -47,11 +55,7 @@ ${grounds.join("\n\n")}
 DEMAND
 I formally request: (1) an immediate reversal of this denial, (2) authorization of the requested treatment, and (3) a written response within 30 days as required by federal regulation. Failure to respond within this period will result in escalation to the State Insurance Commissioner and a request for External Review under applicable law.
 
-Sincerely,
-${name}
-[Contact Information]
-[Date of Birth]
-[Member ID: ${data.denial.policyId}]`;
+${signOff}`;
 };
 
 const highlightText = (text: string, data: AnalysisResult) => {
@@ -81,6 +85,8 @@ const highlightText = (text: string, data: AnalysisResult) => {
 export default function LetterPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [patientName, setPatientName] = useState("Patient");
+  const [contactInfo, setContactInfo] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [letterText, setLetterText] = useState("");
   const [copied, setCopied] = useState(false);
   const [personalizing, setPersonalizing] = useState(true);
@@ -100,6 +106,8 @@ export default function LetterPage() {
   useEffect(() => {
     const dataStr = sessionStorage.getItem(STORAGE_KEYS.ANALYSIS_RESULT);
     const storedName = sessionStorage.getItem("void_patient_name");
+    const storedContact = sessionStorage.getItem("void_contact_info") || "";
+    const storedDOB = sessionStorage.getItem("void_date_of_birth") || "";
     if (!dataStr) {
       navigate(ROUTES.HOME);
       return;
@@ -108,7 +116,9 @@ export default function LetterPage() {
       const data = JSON.parse(dataStr) as AnalysisResult;
       setAnalysis(data);
       if (storedName) setPatientName(storedName);
-      const outputText = generateLetterText(data, storedName || "Patient");
+      setContactInfo(storedContact);
+      setDateOfBirth(storedDOB);
+      const outputText = generateLetterText(data, storedName || "Patient", storedContact, storedDOB);
       setLetterText(outputText);
       initialHtml.current = highlightText(outputText, data);
     } catch (err) {
@@ -132,6 +142,8 @@ export default function LetterPage() {
           body: JSON.stringify({
             ...analysis,
             patientName,
+            contactInfo,
+            dateOfBirth,
           }),
         });
         if (res.ok) {

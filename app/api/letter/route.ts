@@ -9,8 +9,14 @@ if (!GEMINI_API_KEY) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body: AnalysisResult & { patientName?: string } = await req.json();
+    const body: AnalysisResult & { 
+      patientName?: string;
+      contactInfo?: string;
+      dateOfBirth?: string;
+    } = await req.json();
     const patientName = body.patientName || "Patient";
+    const contactInfo = body.contactInfo || "";
+    const dateOfBirth = body.dateOfBirth || "";
 
     if (!body || !body.denial) {
       return NextResponse.json(
@@ -53,6 +59,8 @@ ${
     : ""
 }
 - PATIENT NAME: ${patientName}
+- CONTACT INFO: ${contactInfo}
+- DATE OF BIRTH: ${dateOfBirth}
 
 LEGAL GROUNDS FOR APPEAL:
 ${findingsSummary}

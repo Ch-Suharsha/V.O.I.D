@@ -9,6 +9,8 @@ import { AnalysisResult } from "@/lib/types"
 export default function UploadPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [patientName, setPatientName] = useState("")
+  const [contactInfo, setContactInfo] = useState("")
+  const [dateOfBirth, setDateOfBirth] = useState("")
   const [loading, setLoading] = useState(false)
   const [loadingTest, setLoadingTest] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -68,6 +70,8 @@ export default function UploadPage() {
         "void_patient_name", 
         patientName.trim() || "Patient"
       )
+      sessionStorage.setItem("void_contact_info", contactInfo.trim())
+      sessionStorage.setItem("void_date_of_birth", dateOfBirth.trim())
       wipe(ROUTES.PROCESSING)
     } catch (err) {
       setError(
@@ -319,12 +323,14 @@ export default function UploadPage() {
             ))}
           </div>
 
-          <div style={{ width: "100%", marginBottom: "16px" }}>
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
             <input
               type="text"
               placeholder="Your full name (for the letter)"
               value={patientName}
               onChange={(e) => setPatientName(e.target.value)}
+              onFocus={(e) => e.currentTarget.style.borderColor = "#B89A6A"}
+              onBlur={(e) => e.currentTarget.style.borderColor = "rgba(184,154,106,0.38)"}
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -338,12 +344,49 @@ export default function UploadPage() {
                 outline: "none",
                 transition: "border-color 0.2s ease",
               }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#B89A6A"
+            />
+            
+            <input
+              type="text"
+              placeholder="Contact info — phone or email"
+              value={contactInfo}
+              onChange={(e) => setContactInfo(e.target.value)}
+              onFocus={(e) => e.currentTarget.style.borderColor = "#B89A6A"}
+              onBlur={(e) => e.currentTarget.style.borderColor = "rgba(184,154,106,0.38)"}
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                background: "transparent",
+                border: "1px solid rgba(184,154,106,0.38)",
+                borderRadius: "8px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "11px",
+                letterSpacing: "0.06em",
+                color: "#0C0C0E",
+                outline: "none",
+                transition: "border-color 0.2s ease",
               }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 
-                  "rgba(184,154,106,0.38)"
+            />
+            
+            <input
+              type="text"
+              placeholder="Date of birth — MM/DD/YYYY"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+              onFocus={(e) => e.currentTarget.style.borderColor = "#B89A6A"}
+              onBlur={(e) => e.currentTarget.style.borderColor = "rgba(184,154,106,0.38)"}
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                background: "transparent",
+                border: "1px solid rgba(184,154,106,0.38)",
+                borderRadius: "8px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "11px",
+                letterSpacing: "0.06em",
+                color: "#0C0C0E",
+                outline: "none",
+                transition: "border-color 0.2s ease",
               }}
             />
           </div>
