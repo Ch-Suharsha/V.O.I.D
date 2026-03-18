@@ -1,0 +1,24 @@
+INSURANCE DENIAL NOTICE
+
+Date: February 28, 2026
+Claim Number: CLM-2026-00847
+Policy ID: POL-AET-2024-11923
+Member: John Smith
+Date of Birth: 01/15/1974
+
+DENIAL REASON:
+Your request for Lumbar Spine MRI (CPT Code 72148)
+has been denied under code CO-197: Not Medically
+Necessary.
+
+Reviewing Physician: Dr. Test Doctor
+NPI Number: 0000000000
+Specialty: Unknown
+
+This determination was made based on review of
+submitted clinical documentation.
+
+You have the right to appeal this decision within
+180 days.
+
+Contact: 1-800-555-0100
